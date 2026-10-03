@@ -107,8 +107,6 @@ css_table() {
   done
 }
 
-ALLOWED_ORIGINS_TOML="true"
-
 SERVER_OPT="$(
   opt_raw rate_limit_rps "$RATE_LIMIT_RPS"
   opt_raw rate_limit_burst "$RATE_LIMIT_BURST"
