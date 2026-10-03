@@ -1,0 +1,23 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: circus
+      POSTGRES_DB: circus
+      POSTGRES_HOST_AUTH_METHOD: trust   # dev only
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U circus"]
+      interval: 2s
+      retries: 30
+
+  circus:
+    image: ghcr.io/TeaJhay/circus-docker:main
+    depends_on:
+      postgres: { condition: service_healthy }
+    environment:
+      DB_URL: postgresql://circus@postgres/circus
+    ports: ["3000:3000", "2222:22"]
+    volumes: [keys:/keys, nix:/nix]
+
+volumes: { pgdata: {}, keys: {}, nix: {} }
