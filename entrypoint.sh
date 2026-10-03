@@ -182,6 +182,15 @@ done
 
 circusctl migrate up "$DB_URL"
 
+nix key generate-secret --key-name ci.example.org-1 \
+  > /var/lib/circus/cache-priv-key.pem
+
+nix key convert-secret-to-public \
+  < /var/lib/circus/cache-priv-key.pem \
+  > cache-pub-key.pem
+
+ECHO /var/lib/circus/cache-pub-key.pem
+  
 # Seed the initial admin API key (idempotent). Format: circus_<hex>
 if [ -n "$CIRCUS_KEY" ]; then
   KEY_HASH=$(printf '%s' "circus_$CIRCUS_API_KEY" | sha256sum | cut -d' ' -f1)
@@ -194,3 +203,4 @@ fi
 circus-evaluator &
 circus-queue-runner &
 exec circus-server
+ECHO /var/lib/circus/cache-pub-key.pem
