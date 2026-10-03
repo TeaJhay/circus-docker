@@ -20,7 +20,7 @@ grep -q '^sshd:' /etc/passwd || echo 'sshd:x:74:74:sshd:/var/empty:/bin/false' >
 set -a
 
 # --- database ---
-: "${DB_URL:=${CIRCUS_DATABASE__URL:-postgresql://circus@localhost/circus}}"
+: "${DB_URL:=${CIRCUS_DATABASE__URL:-postgresql://circus@postgres/circus?sslmode=disable}}"
 : "${CONNECTION_TIMEOUT:=30}"
 : "${MAX_CONNECTIONS:=20}"
 
