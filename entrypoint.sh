@@ -183,11 +183,11 @@ done
 circusctl migrate up "$DB_URL"
 
 nix key generate-secret --key-name ci.example.org-1 \
-  > /var/lib/circus/cache-priv-key.pem
+  > /keys/cache-priv-key.pem
 
 nix key convert-secret-to-public \
-  < /var/lib/circus/cache-priv-key.pem \
-  > cache-pub-key.pem
+  < /keys/cache-priv-key.pem \
+  > /keys/cache-pub-key.pem
 
 echo /var/lib/circus/cache-pub-key.pem
   
