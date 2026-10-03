@@ -1,63 +1,80 @@
-# Configuration File for Circus CI system
-# This file contains default configuration for all circus components
+# Circus config template, rendered by entrypoint.sh with envsubst.
+# Every variable below has a default in entrypoint.sh.
+# The *_OPT placeholders expand to optional keys, and only when you set them.
+# EXTRA_TOML at the bottom is appended verbatim for anything not covered here.
+
 [database]
 connect_timeout = ${CONNECTION_TIMEOUT}
 max_connections = ${MAX_CONNECTIONS}
 url             = "${DB_URL}"
 
 [server]
-allowed_origins = [ ${ALLOWED_ORIGINS} ]
-host            = "${HOST}"
-max_body_size   = ${MAX_BODY_SIZE}    # 10MB
-port            = ${PORT}
-request_timeout = ${REQUEST_TIMEOUT}
-
-# Security options
-# openapi_enabled      = false # disable /api/v1/openapi.json
-# force_secure_cookies = true # enable when behind HTTPS reverse proxy (nginx/caddy)
-# rate_limit_rps       = 100  # requests per second per IP (helps prevent DoS attacks)
-# rate_limit_burst     = 20   # burst size before rate limit enforcement
+allowed_origins           = [ ${ALLOWED_ORIGINS_TOML} ]
+host                      = "${HOST}"
+port                      = ${PORT}
+max_body_size             = ${MAX_BODY_SIZE}
+request_timeout           = ${REQUEST_TIMEOUT}
+cors_permissive           = ${CORS_PERMISSIVE}
+force_secure_cookies      = ${FORCE_SECURE_COOKIES}
+openapi_enabled           = ${OPENAPI_ENABLED}
+require_api_key_for_reads = ${REQUIRE_API_KEY_FOR_READS}
+${SERVER_OPT}
 
 [ui]
-assets         = true
-brand_name     = "circus"
-brand_subtitle = "Nix CI"
-dashboard      = true
-enabled        = true
-# logo_url    = "/static/custom/logo.svg"
-# favicon_url = "/static/custom/favicon.svg"
-# custom_css  = "/etc/circus/dashboard.css"
-# static_dir  = "/etc/circus/static"
+enabled        = ${UI_ENABLED}
+dashboard      = ${UI_DASHBOARD}
+assets         = ${UI_ASSETS}
+brand_name     = "${UI_BRAND_NAME}"
+brand_subtitle = "${UI_BRAND_SUBTITLE}"
+${UI_OPT}
 
-# [ui.css_variables]
-# accent = "#2563eb"
-# bg     = "#f8fafc"
-# text   = "#0f172a"
+${UI_CSS_TABLE}
 
 [evaluator]
-allow_ifd         = ${ALLOW_IFD}
-auto_allowed_uris = ${AUTO_ALLOWED_URIS}
-git_timeout       = ${GIT_TIMEOUT}
-nix_timeout       = ${NIX_TIMEOUT}
-# max_eval_time      = 3600
-# Per Nix subprocess. Peak evaluator allowance is approximately this times
-# eval_workers times max_concurrent_evals, plus the Circus parent process.
-# memory_limit_mb     = 4096
-poll_interval        = ${POLL_INTERVAL_EVAL} 
+allow_ifd            = ${ALLOW_IFD}
+auto_allowed_uris    = ${AUTO_ALLOWED_URIS}
+git_timeout          = ${GIT_TIMEOUT}
+nix_timeout          = ${NIX_TIMEOUT}
+poll_interval        = ${POLL_INTERVAL_EVAL}
 require_locked_flake = ${REQUIRE_LOCKED_FLAKE}
 restrict_eval        = ${RESTRICT_EVAL}
 work_dir             = "${WORK_DIR_EVAL}"
+max_concurrent_evals = ${MAX_CONCURRENT_EVALS}
+eval_workers         = ${EVAL_WORKERS}
+${EVALUATOR_OPT}
 
 [queue_runner]
-build_timeout = ${BUILD_TIMEOUT}
-poll_interval = ${POLL_INTERVAL_QUEUE}
-work_dir      = "${WORK_DIR_QUEUE}"
-workers       = ${WORKERS}
+build_timeout     = ${BUILD_TIMEOUT}
+poll_interval     = ${POLL_INTERVAL_QUEUE}
+work_dir          = "${WORK_DIR_QUEUE}"
+workers           = ${WORKERS}
+max_silent_time   = ${MAX_SILENT_TIME}
+failed_paths_cache = ${FAILED_PATHS_CACHE}
+failed_paths_ttl  = ${FAILED_PATHS_TTL}
+${QUEUE_RUNNER_OPT}
 
 [cache]
 enabled = ${CACHE_BOOL}
-# cache_url = "https://ci.example.org/nix-cache/"
+${CACHE_OPT}
 
-# [[cache.upstreams]]
-# url = "${CACHE_UPSTREAM}"
-# public_key = "${CACHE_UPSTREAM_KEY}"
+${CACHE_UPSTREAM_TABLE}
+
+[signing]
+enabled = ${SIGNING_ENABLED}
+${SIGNING_OPT}
+
+[gc]
+enabled          = ${GC_ENABLED}
+max_age_days     = ${GC_MAX_AGE_DAYS}
+cleanup_interval = ${GC_CLEANUP_INTERVAL}
+${GC_OPT}
+
+[logs]
+log_dir  = "${LOG_DIR}"
+compress = ${LOG_COMPRESS}
+
+[tracing]
+level  = "${LOG_LEVEL}"
+format = "${LOG_FORMAT}"
+
+${EXTRA_TOML}

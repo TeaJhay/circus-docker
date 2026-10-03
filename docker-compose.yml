@@ -17,6 +17,7 @@ services:
       postgres: { condition: service_healthy }
     environment:
       DB_URL: postgresql://circus@postgres/circus
+      CIRCUS_ADMIN_KEY: ${CIRCUS_ADMIN_KEY}
     ports: ["3000:3000", "2222:22"]
     volumes: [keys:/keys, nix:/nix]
 
