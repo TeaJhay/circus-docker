@@ -107,11 +107,7 @@ css_table() {
   done
 }
 
-ALLOWED_ORIGINS_TOML=""
-if [ -n "$ALLOWED_ORIGINS" ]; then
-  ALLOWED_ORIGINS_TOML=$(printf '%s' "$ALLOWED_ORIGINS" \
-    | sed 's/[[:space:]]*,[[:space:]]*/", "/g; s/^/"/; s/$/"/')
-fi
+ALLOWED_ORIGINS_TOML="true"
 
 SERVER_OPT="$(
   opt_raw rate_limit_rps "$RATE_LIMIT_RPS"
