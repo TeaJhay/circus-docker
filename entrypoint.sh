@@ -189,7 +189,7 @@ nix key convert-secret-to-public \
   < /var/lib/circus/cache-priv-key.pem \
   > cache-pub-key.pem
 
-ECHO /var/lib/circus/cache-pub-key.pem
+echo /var/lib/circus/cache-pub-key.pem
   
 # Seed the initial admin API key (idempotent). Format: circus_<hex>
 if [ -n "$CIRCUS_KEY" ]; then
