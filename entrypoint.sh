@@ -183,8 +183,8 @@ done
 circusctl migrate up "$DB_URL"
 
 # Seed the initial admin API key (idempotent). Format: circus_<hex>
-if [ -n "$CIRCUS_ADMIN_KEY" ]; then
-  KEY_HASH=$(printf '%s' "$CIRCUS_ADMIN_KEY" | sha256sum | cut -d' ' -f1)
+if [ -n "$CIRCUS_API_KEY" ]; then
+  KEY_HASH=$(printf '%s' "$CIRCUS_API_KEY" | sha256sum | cut -d' ' -f1)
   psql "$DB_URL" -v ON_ERROR_STOP=1 -c \
     "INSERT INTO api_keys (name, key_hash, role)
      SELECT 'admin', '$KEY_HASH', 'admin'
