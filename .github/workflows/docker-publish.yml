@@ -1,9 +1,13 @@
 name: image
 on:
+  schedule:
+    - cron: '0 0 */3 * *'
   push:
-    branches: [main]
-    tags: ['v*']
+    branches: [ "main" ]
+    # Publish semver tags as releases.
+    tags: [ 'v*.*.*' ]
   pull_request:
+    branches: [ "main" ]
 
 permissions:
   contents: read
