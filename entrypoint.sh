@@ -184,10 +184,10 @@ circusctl migrate up "$DB_URL"
 
 # Seed the initial admin API key (idempotent). Format: circus_<hex>
 if [ -n "$CIRCUS_KEY" ]; then
-$ export CIRCUS_HASH=$(echo -n "circus_$CIRCUS_KEY" | sha256sum | cut -d' ' -f1)
+  export CIRCUS_HASH=$(echo -n "circus_$CIRCUS_KEY" | sha256sum | cut -d' ' -f1)
 
 # Insert into the database
-$ sudo -u circus psql -U circus -d circus -c \
+  sudo -u circus psql -U circus -d circus -c \
   "INSERT INTO api_keys (name, key_hash, role) VALUES ('admin', '$CIRCUS_HASH', 'admin')"
 fi
 
