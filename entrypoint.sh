@@ -39,7 +39,7 @@ set -a
 : "${MAX_CONNECTIONS:=20}"
 
 # --- server ---
-: "${ALLOWED_ORIGINS=http://localhost:3000}"   # comma-separated, plain URLs
+: "${ALLOWED_ORIGINS:=}"   # comma-separated, plain URLs
 : "${HOST:=0.0.0.0}"                            # container default; Circus's own is 127.0.0.1
 : "${PORT:=3000}"
 : "${MAX_BODY_SIZE:=10485760}"
@@ -102,6 +102,16 @@ set -a
 : "${LOG_COMPRESS:=false}"
 : "${LOG_LEVEL:=info}"
 : "${LOG_FORMAT:=compact}"
+
+# --- notifications ---
+: "${EMAIL_HOST:=}"
+: "${EMAIL_PORT:=}"
+: "${EMAIL_USER:=}"
+: "${EMAIL_PASSOWRD:=}"
+: "${EMAIL_PASSWORD_FILE:=}"
+: "${EMAIL_TLS:=false}"
+: "${EMAIL_ADDRESS:=}"
+: "${EMAIL_RECIPIENTS:=}"
 
 # --- escape hatch: raw TOML appended at the end of the file ---
 # EXTRA_TOML="..."  and/or  EXTRA_TOML_FILE=/path/to/extra.toml
