@@ -51,7 +51,7 @@ set -a
 # Optional (unset = omitted): RATE_LIMIT_RPS RATE_LIMIT_BURST
 #   ALLOWED_URL_SCHEMES (TOML list, e.g. ["https","ssh"]) CONFIG_EDITOR_ENABLED
 #   WEBHOOK_SECRET_ENCRYPTION_KEY_FILE   SERVER_EXTRA (raw TOML lines)
-: "${HOST_URL:="
+: "${HOST_URL:=}"
 
 # --- ui ---
 : "${UI_ENABLED:=true}"
@@ -84,10 +84,10 @@ set -a
 : "${MAX_SILENT_TIME:=0}"
 : "${FAILED_PATHS_CACHE:=true}"
 : "${FAILED_PATHS_TTL:=86400}"
-# Optional: QUEUE_RUNNER_EXTRA
+## Optional: QUEUE_RUNNER_EXTRA
 
 # --- cache / signing ---
-: "${CACHE_BOOL:=false}"                        # Circus's own default is true
+: "${CACHE_BOOL:=false}"                       
 # Optional: CACHE_URL CACHE_EXTRA
 #   CACHE_UPSTREAM + CACHE_UPSTREAM_KEY (one upstream; more via EXTRA_TOML)
 : "${SIGNING_ENABLED:=false}"
@@ -130,6 +130,7 @@ SERVER_OPT="$(
   opt_str webhook_secret_encryption_key_file "$WEBHOOK_SECRET_ENCRYPTION_KEY_FILE"
   printf '%s' "$SERVER_EXTRA"
 )"
+export SERVER_OPT
 UI_OPT="$(
   opt_str logo_url "$UI_LOGO_URL"
   opt_str favicon_url "$UI_FAVICON_URL"
@@ -137,31 +138,39 @@ UI_OPT="$(
   opt_str static_dir "$UI_STATIC_DIR"
   printf '%s' "$UI_EXTRA"
 )"
+export UI_OPT
 UI_CSS_TABLE="$(css_table)"
+export UI_CSS_TABLE
 EVALUATOR_OPT="$(
   opt_raw max_eval_time "$MAX_EVAL_TIME"
   opt_raw memory_limit_mb "$MEMORY_LIMIT_MB"
   printf '%s' "$EVALUATOR_EXTRA"
 )"
+export EVALUATOR_OPT
 QUEUE_RUNNER_OPT="$(printf '%s' "$QUEUE_RUNNER_EXTRA")"
+export QUEUE_RUNNER_OPT
 CACHE_OPT="$(
   opt_str cache_url "$CACHE_URL"
   printf '%s' "$CACHE_EXTRA"
 )"
+export CACHE_OPT
 CACHE_UPSTREAM_TABLE=""
 if [ -n "$CACHE_UPSTREAM" ]; then
   CACHE_UPSTREAM_TABLE="[[cache.upstreams]]
 url        = \"$CACHE_UPSTREAM\"
 public_key = \"$CACHE_UPSTREAM_KEY\""
+export CACHE_UPSTREAM_TABLE
 fi
 SIGNING_OPT="$(
   opt_str key_file "$SIGNING_KEY_FILE"
   printf '%s' "$SIGNING_EXTRA"
 )"
+export SIGNING_OPT
 GC_OPT="$(
   opt_str gc_roots_dir "$GC_ROOTS_DIR"
   printf '%s' "$GC_EXTRA"
 )"
+export GC_OPT
 if [ -n "$EXTRA_TOML_FILE" ] && [ -f "$EXTRA_TOML_FILE" ]; then
   EXTRA_TOML="$EXTRA_TOML
 $(cat "$EXTRA_TOML_FILE")"
@@ -172,7 +181,7 @@ mkdir -p "$WORK_DIR_EVAL" "$WORK_DIR_QUEUE" "$LOG_DIR"
 
 # Substitute exactly the variables the template references, so the list can't drift.
 TPL="${CIRCUS_TEMPLATE:-/etc/circus.toml.tpl}"
-OUT="${CIRCUS_RENDERED:-/etc/circus.toml}"
+OUT="${CIRCUS_RENDERED:-/etc/config/circus.toml}"
 VARS="$(grep -o '\${[A-Za-z_][A-Za-z0-9_]*}' "$TPL" | sort -u | tr '\n' ' ')"
 envsubst "$VARS" < "$TPL" > "$OUT"
 
