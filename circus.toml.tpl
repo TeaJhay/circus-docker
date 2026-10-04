@@ -79,10 +79,9 @@ format = "${LOG_FORMAT}"
 
 [notifications]
 email.smtp_host =	"${EMAIL_HOST}"
-email.smtp_port = "${EMAIL_PORT}"
+email.smtp_port = ${EMAIL_PORT}
 email.smtp_user = "${EMAIL_USER}"
 email.smtp_password = "${EMAIL_PASSWORD}"
-email.smtp_password_file = ${EMAIL_PASSWORD_FILE} 
 email.tls = ${EMAIL_TLS}
 email.from_address = "${EMAIL_ADDRESS}"
 email.to_addresses =	[ "${EMAIL_RECIPIENTS}" ]
