@@ -9,7 +9,7 @@ max_connections = ${MAX_CONNECTIONS}
 url             = "${DB_URL}"
 
 [server]
-allowed_origins           = [ ${ALLOWED_ORIGINS} ]
+allowed_origins           = [ "${ALLOWED_ORIGINS}" ]
 host                      = "${HOST}"
 port                      = ${PORT}
 max_body_size             = ${MAX_BODY_SIZE}
@@ -78,13 +78,13 @@ level  = "${LOG_LEVEL}"
 format = "${LOG_FORMAT}"
 
 [notifications]
-email.smtp_host =	${EMAIL_HOST}
-email.smtp_port = ${EMAIL_PORT}
-email.smtp_user = ${EMAIL_USER}
-email.smtp_password = ${EMAIL_PASSWORD}
+email.smtp_host =	"${EMAIL_HOST}"
+email.smtp_port = "${EMAIL_PORT}"
+email.smtp_user = "${EMAIL_USER}"
+email.smtp_password = "${EMAIL_PASSWORD}"
 email.smtp_password_file = ${EMAIL_PASSWORD_FILE} 
 email.tls = ${EMAIL_TLS}
-email.from_address = ${EMAIL_ADDRESS}
-email.to_addresses =	[ ${EMAIL_RECIPIENTS} ]
+email.from_address = "${EMAIL_ADDRESS}"
+email.to_addresses =	[ "${EMAIL_RECIPIENTS}" ]
 
 ${EXTRA_TOML}
