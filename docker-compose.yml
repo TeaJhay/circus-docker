@@ -15,9 +15,9 @@ services:
     image: ghcr.io/TeaJhay/circus-docker:main
     depends_on:
       postgres: { condition: service_healthy }
-    environment:
-      DB_URL: postgresql://circus@postgres/circus
+    env_file:
+      - stack.env
     ports: ["3000:3000", "2222:22"]
     volumes: [keys:/keys, nix:/nix, config:/etc/config ]
 
-volumes: { pgdata: {}, keys: {}, nix: {} }
+volumes: { pgdata: {}, keys: {}, nix: {}, config: {} }
