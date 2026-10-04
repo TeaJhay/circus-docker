@@ -51,7 +51,6 @@ set -a
 # Optional (unset = omitted): RATE_LIMIT_RPS RATE_LIMIT_BURST
 #   ALLOWED_URL_SCHEMES (TOML list, e.g. ["https","ssh"]) CONFIG_EDITOR_ENABLED
 #   WEBHOOK_SECRET_ENCRYPTION_KEY_FILE   SERVER_EXTRA (raw TOML lines)
-: "${HOST_URL:=}"
 
 # --- ui ---
 : "${UI_ENABLED:=true}"
@@ -219,7 +218,7 @@ circusctl migrate up "$DB_URL"
 if [ "$CACHE_BOOL" = "true" ]; then
 
   if [ ! -s /keys/cache-priv-key.pem ]; then
-    nix key generate-secret --key-name "${HOST_URL#*://}" \
+    nix key generate-secret --key-name "${CACHE_URL#*://}" \
       > /keys/cache-priv-key.pem
   fi
   if [ ! -s /keys/cache-pub-key.pem ]; then
