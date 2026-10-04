@@ -85,5 +85,5 @@ email.smtp_password = "${EMAIL_PASSWORD}"
 email.tls = ${EMAIL_TLS}
 email.from_address = "${EMAIL_ADDRESS}"
 email.to_addresses =	[ "${EMAIL_RECIPIENTS}" ]
-slack.on_failure_only = false
+on_failure_only = ${EMAIL_ON_FAILURE_ONLY}
 ${EXTRA_TOML}
