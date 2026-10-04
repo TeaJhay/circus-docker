@@ -7,11 +7,24 @@ mkdir -p /var/empty /run/sshd /root/.ssh /keys
 chmod 700 /root/.ssh
 if [ -n "$SSH_AUTHORIZED_KEYS" ]; then
   printf '%s\n' "$SSH_AUTHORIZED_KEYS" > /root/.ssh/authorized_keys
-  chmod 600 /root/.ssh/authorized_keys
+elif [ -f /keys/authorized_keys ]; then
+  cp /keys/authorized_keys /root/.ssh/authorized_keys
 fi
+[ -f /root/.ssh/authorized_keys ] && chmod 600 /root/.ssh/authorized_keys
+
+# A locked root account is refused even with a valid key; '*' = no password, keys allowed
+if [ -f /etc/shadow ]; then
+  while IFS= read -r l; do
+    case "$l" in root:*) l="root:*:${l#root:*:}";; esac
+    printf '%s\n' "$l"
+  done < /etc/shadow > /tmp/shadow.new
+  cat /tmp/shadow.new > /etc/shadow
+  rm -f /tmp/shadow.new
+fi
+
 grep -q '^sshd:' /etc/passwd || echo 'sshd:x:74:74:sshd:/var/empty:/bin/false' >> /etc/passwd
 [ -f /keys/ssh_host_ed25519_key ] || ssh-keygen -t ed25519 -N '' -f /keys/ssh_host_ed25519_key
-"$(command -v sshd)" -D -e -h /keys/ssh_host_ed25519_key \
+"$(command -v sshd)" -D -e -f /dev/null -h /keys/ssh_host_ed25519_key \
   -o PermitRootLogin=prohibit-password -o PasswordAuthentication=no &
 
 # ===================== CONFIG BEGIN =====================
