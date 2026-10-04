@@ -25,7 +25,8 @@ fi
 grep -q '^sshd:' /etc/passwd || echo 'sshd:x:74:74:sshd:/var/empty:/bin/false' >> /etc/passwd
 [ -f /keys/ssh_host_ed25519_key ] || ssh-keygen -t ed25519 -N '' -f /keys/ssh_host_ed25519_key
 "$(command -v sshd)" -D -e -f /dev/null -h /keys/ssh_host_ed25519_key \
-  -o PermitRootLogin=prohibit-password -o PasswordAuthentication=no &
+  -o PermitRootLogin=prohibit-password -o PasswordAuthentication=no \
+  -o "SetEnv=PATH=/root/.nix-profile/bin:/usr/bin:/bin" &
 
 # ===================== CONFIG BEGIN =====================
 # Every default below can be overridden from the container environment.
