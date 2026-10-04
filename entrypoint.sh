@@ -51,6 +51,7 @@ set -a
 # Optional (unset = omitted): RATE_LIMIT_RPS RATE_LIMIT_BURST
 #   ALLOWED_URL_SCHEMES (TOML list, e.g. ["https","ssh"]) CONFIG_EDITOR_ENABLED
 #   WEBHOOK_SECRET_ENCRYPTION_KEY_FILE   SERVER_EXTRA (raw TOML lines)
+: "${HOST_URL:="
 
 # --- ui ---
 : "${UI_ENABLED:=true}"
@@ -196,14 +197,18 @@ done
 
 circusctl migrate up "$DB_URL"
 
-nix key generate-secret --key-name ci.example.org-1 \
-  > /keys/cache-priv-key.pem
+if [ "$CACHE_BOOL" = "true" ]; then
 
-nix key convert-secret-to-public \
-  < /keys/cache-priv-key.pem \
-  > /keys/cache-pub-key.pem
-
-echo /var/lib/circus/cache-pub-key.pem
+  if [ ! -s /keys/cache-priv-key.pem ]; then
+    nix key generate-secret --key-name "${HOST_URL#*://}" \
+      > /keys/cache-priv-key.pem
+  fi
+  if [ ! -s /keys/cache-pub-key.pem ]; then
+    nix key convert-secret-to-public \
+      < /keys/cache-priv-key.pem \
+      > /keys/cache-pub-key.pem
+  fi
+fi
   
 # Seed the initial admin API key (idempotent). Format: circus_<hex>
 if [ -n "$CIRCUS_KEY" ]; then
@@ -217,4 +222,3 @@ fi
 circus-evaluator &
 circus-queue-runner &
 exec circus-server
-ECHO /var/lib/circus/cache-pub-key.pem
