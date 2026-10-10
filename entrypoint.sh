@@ -24,7 +24,10 @@ fi
 
 grep -q '^sshd:' /etc/passwd || echo 'sshd:x:74:74:sshd:/var/empty:/bin/false' >> /etc/passwd
 [ -f /keys/ssh_host_ed25519_key ] || ssh-keygen -t ed25519 -N '' -f /keys/ssh_host_ed25519_key
+FTP="$(dirname "$(dirname "$(command -v sshd)")")/libexec/sftp-server"
+
 "$(command -v sshd)" -D -e -f /dev/null -h /keys/ssh_host_ed25519_key \
+  -o "Subsystem sftp $SFTP" \
   -o PermitRootLogin=prohibit-password -o PasswordAuthentication=no \
   -o "SetEnv=PATH=/root/.nix-profile/bin:/usr/bin:/bin" &
 
