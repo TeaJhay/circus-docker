@@ -269,6 +269,24 @@ else
   echo "[init] CIRCUS_API_KEY not set, skipping admin API key seed."
 fi
 # ===================== services =====================
-circus-evaluator &
-circus-queue-runner &
-exec circus-server
+supervise() {
+  (
+    child=
+    trap 'kill "$child" 2>/dev/null; exit 0' TERM INT
+    while :; do
+      "$@" &
+      child=$!
+      rc=0
+      wait "$child" || rc=$?
+      echo "[init] $1 exited with status $rc, restarting in 2s" >&2
+      sleep 2
+    done
+  ) &
+}
+
+supervise circus-evaluator
+supervise circus-queue-runner
+supervise circus-server
+
+trap 'kill $(jobs -p) 2>/dev/null; wait; exit 0' TERM INT
+wait
