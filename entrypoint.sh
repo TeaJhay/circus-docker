@@ -168,10 +168,24 @@ CACHE_OPT="$(
 export CACHE_OPT
 CACHE_UPSTREAM_TABLE=""
 if [ -n "$CACHE_UPSTREAM" ]; then
-  CACHE_UPSTREAM_TABLE="[[cache.upstreams]]
-url        = \"$CACHE_UPSTREAM\"
-public_key = \"$CACHE_UPSTREAM_KEY\""
-export CACHE_UPSTREAM_TABLE
+  IFS=',' read -ra urls <<< "$CACHE_UPSTREAM"
+  IFS=',' read -ra keys <<< "$CACHE_UPSTREAM_KEY"
+
+  if [ "${#urls[@]}" -ne "${#keys[@]}" ]; then
+    echo "CACHE_UPSTREAM and CACHE_UPSTREAM_KEY must have the same number of entries" >&2
+    exit 1
+  fi
+
+  for i in "${!urls[@]}"; do
+    url="${urls[$i]// /}"   # strip stray spaces
+    key="${keys[$i]// /}"
+    CACHE_UPSTREAM_TABLE+="[[cache.upstreams]]
+url        = \"$url\"
+public_key = \"$key\"
+
+"
+  done
+  export CACHE_UPSTREAM_TABLE
 fi
 SIGNING_OPT="$(
   opt_str key_file "$SIGNING_KEY_FILE"
@@ -232,12 +246,27 @@ if [ "$CACHE_BOOL" = "true" ]; then
 fi
   
 # Seed the initial admin API key (idempotent). Format: circus_<hex>
-if [ -n "$CIRCUS_KEY" ]; then
+if [ -n "$CIRCUS_API_KEY" ]; then
+  echo "[init] Seeding admin API key..."
   KEY_HASH=$(printf '%s' "circus_$CIRCUS_API_KEY" | sha256sum | cut -d' ' -f1)
-  psql "$DB_URL" -v ON_ERROR_STOP=1 -c \
-    "INSERT INTO api_keys (name, key_hash, role)
-     SELECT 'admin', '$KEY_HASH', 'admin'
-     WHERE NOT EXISTS (SELECT 1 FROM api_keys WHERE key_hash = '$KEY_HASH')"
+
+  if RESULT=$(psql "$DB_URL" -v ON_ERROR_STOP=1 -v key_hash="$KEY_HASH" -tA <<'SQL' 2>&1
+INSERT INTO api_keys (name, key_hash, role)
+SELECT 'admin', :'key_hash', 'admin'
+WHERE NOT EXISTS (SELECT 1 FROM api_keys WHERE key_hash = :'key_hash');
+SQL
+  ); then
+    case "$RESULT" in
+      "INSERT 0 1") echo "[init] Admin API key created." ;;
+      "INSERT 0 0") echo "[init] Admin API key already exists, skipping." ;;
+      *)            echo "[init] Admin API key step finished: $RESULT" ;;
+    esac
+  else
+    echo "[init] ERROR: failed to seed admin API key: $RESULT" >&2
+    exit 1
+  fi
+else
+  echo "[init] CIRCUS_API_KEY not set, skipping admin API key seed."
 fi
 # ===================== services =====================
 circus-evaluator &
